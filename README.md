@@ -151,6 +151,12 @@ auto-install `requests` on first load
 Typical chat flow: `search_movies` → `movie_showtimes` → present times →
 `ticket_link` for the chosen showing.
 
+<img width="1113" height="487" alt="cinema_showtimes" src="https://github.com/user-attachments/assets/b10ef5f1-b92d-4db0-bbd0-19b938757b59" />
+
+<img width="889" height="503" alt="search cinemas" src="https://github.com/user-attachments/assets/a1823a0b-c718-418d-a84a-2ff41738f268" />
+
+
+
 All tools return a uniform envelope:
 
 ```json
