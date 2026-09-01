@@ -1,8 +1,8 @@
 # MovieGlu MCP
 
 Real **theater showtimes, films, cinemas and ticket deep links** from the
-[MovieGlu API](https://developer.movieglu.com/), exposed to **Open WebUI
-chat sessions** as tools.
+[MovieGlu API](https://developer.movieglu.com/), available via MCP or Open WebUI
+tool.
 
 Two interchangeable integrations, one shared client:
 
