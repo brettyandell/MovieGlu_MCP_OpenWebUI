@@ -1,0 +1,15 @@
+# MovieGlu tool configuration (Admin Panel -> Tools -> MovieGlu -> Valves).
+# Fill credentials before use; they are stored in OpenWebUI's database.
+base_url: "https://api-gate2.movieglu.com/"
+api_key: ""
+client: ""
+# Full value of the Authorization header from the MovieGlu credentials email
+# (typically starts with "Basic ").
+authorization: ""
+# Two-letter ISO territory you licensed: US, UK, CA, IE, FR, ES, DE, IN ...
+territory: "US"
+# Optional default location (used by location-aware tools when the model
+# does not pass lat/lng for a specific call).
+default_lat: ""
+default_lng: ""
+timeout: 30

@@ -1,0 +1,13 @@
+manifest_version: "1.0.0"
+name: "MovieGlu"
+version: "0.1.0"
+description: "Real movies, cinemas and theater showtimes from the MovieGlu API"
+description_full: |
+  Tools for real-time movie and theater data from the MovieGlu v200 API:
+  now-showing and coming-soon films, film/cinema search, cinema schedules,
+  film showtimes near a location, closest showing, and ticket deep links.
+  Configure API credentials in the tool settings (Valves).
+entrypoint: "__init__.py"
+type: "tool"
+author: "The Grid"
+requirements: "requests"

@@ -1,3 +1,15 @@
+Metadata-Version: 2.4
+Name: movieglu-mcp
+Version: 0.1.0
+Summary: MCP server (and OpenWebUI custom tool) exposing the MovieGlu movies/cinemas/showtimes API as chat tools
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: mcp<2,>=1.9
+Requires-Dist: requests>=2.31
+Requires-Dist: python-dotenv>=1.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+
 # MovieGlu MCP
 
 Real **theater showtimes, films, cinemas and ticket deep links** from the
@@ -8,12 +20,8 @@ Two interchangeable integrations, one shared client:
 
 | Path | What it is | When to use |
 | --- | --- | --- |
-| `openwebui/movieglu_tool.py` | **Single-file OpenWebUI tool** | Fastest path: paste into the web UI (`Admin Panel → Tools → Create`). No file access needed. |
 | `src/movieglu_mcp/` | **MCP server** (stdio + Streamable HTTP) | OpenWebUI's native MCP integration: `Settings → Admin → Integrations → External Tool Servers → Type: MCP (Streamable HTTP)`. Also works with any other MCP client. |
-| `openwebui/movieglu/` | **Drop-in tool folder** (same code) | Prefer installing by file into the container: `components/tools/tools/movieglu/`. |
-
-`openwebui/movieglu_tool.py` and `openwebui/movieglu/__init__.py` are
-byte-identical by design — one canonical tool, two delivery forms.
+| `openwebui/movieglu/` | **OpenWebUI custom tool** (in-process Python) | Prefer a built-in tool plugin over a separate process. Drop-in under `components/tools/tools/`. |
 
 Open WebUI only speaks **Streamable HTTP** for MCP (no stdio/SSE natively),
 so the server ships an HTTP transport; a stdio transport is included for
@@ -86,50 +94,17 @@ docker run --env-file .env -p 8000:8000 movieglu-mcp
 6. In a chat: `+ → Integrations → Tools → MovieGlu` (enable once per chat
    for the model to use the tools).
 
-### Import the single-file tool through the web interface (recommended)
-
-1. Open `openwebui/movieglu_tool.py` in this project — it is fully
-   self-contained (frontmatter metadata, credentials UI, client and all 12
-   tools in one file, no local imports).
-2. In Open WebUI: **Admin Panel → Tools → Create**
-   - **ID:** `movieglu`
-   - **Name:** `MovieGlu`
-   - **Description:** `Real movies, cinemas and theater showtimes from the MovieGlu API`
-3. Paste the entire file contents into the code editor → **Save**.
-   (Equivalent path: **Import From Link** with a URL to the file, e.g. a
-   raw GitHub link.)
-
-   > **v0.9.2 note (Monolith build):** saving a tool actually *loads* it
-   > first. If the code fails to load (wrong class name, missing import,
-   > etc.) the request fails and **nothing is stored** — the tool will not
-   > appear in the list even though the dialog closed. This file follows
-   > the v0.9.2 contract: `class Tools` with nested `Valves`/`UserValves`,
-   > zero-arg `__init__`, plain `async` methods, no `@function_tool`.
-   > If a save “succeeds” but the tool never lists, that is the cause.
-4. Open the **⚙️ gear icon (Valves)** next to the tool and fill in the
-   credentials from your MovieGlu email: `api_key`, `client`,
-   `authorization` (the full `Basic ...` value), `territory`, and an
-   optional default `default_lat` / `default_lng`.
-5. In a chat: `+ → Integrations → Tools → MovieGlu` (enable per chat, or
-   set as a default tool on a model).
-
-The `requirements: requests` frontmatter line makes Open WebUI
-auto-install `requests` on first load
-(`ENABLE_PIP_INSTALL_FRONTMATTER_REQUIREMENTS` is on by default).
-
-### Alternative: install the drop-in folder (older OpenWebUI builds)
+### Alternative: install the custom tool (no MCP process)
 
 ```bash
-# inside an OpenWebUI container: copy the whole folder to
+# inside the OpenWebUI container
+# copy the whole folder (4 files) to:
 /app/backend/open_webui/components/tools/tools/movieglu/
 ```
 
-> **Not available in v0.9.x (Monolith build):** that `components/tools`
-> directory does not exist there; tools are DB-stored and created through the
-> Admin Panel (or `POST /api/v1/tools/create`). The folder is kept for
-> compatibility with older builds. Restart Open WebUI, then set the
-> credentials under `Admin Panel → Tools → MovieGlu` (same Valves).
-> `config.yaml` pre-fills defaults; `requirements.txt` covers `requests`.
+Restart Open WebUI, then set the credentials under
+`Admin Panel → Tools → MovieGlu`. `requests` is auto-installed by OpenWebUI
+from the tool's `requirements.txt`.
 
 ## 4. Tools (12, identical in both integrations)
 
@@ -196,13 +171,11 @@ MovieGlu MCP/
 │   ├── config.py             # env/.env -> Settings
 │   ├── server.py             # FastMCP server, 12 tools
 │   └── __main__.py           # python -m movieglu_mcp [--transport ...]
-├── openwebui/
-│   ├── movieglu_tool.py      # SINGLE FILE for the web UI (Tools > Create)
-│   └── movieglu/            # drop-in folder variant (same code + metadata)
-│       ├── __init__.py      # byte-identical to movieglu_tool.py
-│       ├── manifest.yaml
-│       ├── config.yaml      # default Valve values
-│       └── requirements.txt
+├── openwebui/movieglu/       # drop-in OpenWebUI custom tool
+│   ├── __init__.py           # self-contained Tool (12 @function_tool)
+│   ├── manifest.yaml
+│   ├── config.yaml           # default Valve values
+│   └── requirements.txt
 ├── scripts/check_movieglu.py # credential/connectivity gate
 └── tests/test_client.py      # mocked-request unit tests
 ```
